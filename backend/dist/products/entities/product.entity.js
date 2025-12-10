@@ -9,8 +9,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Product = void 0;
+exports.Product = exports.ProductType = void 0;
 const typeorm_1 = require("typeorm");
+var ProductType;
+(function (ProductType) {
+    ProductType["COFFEE"] = "coffee";
+    ProductType["TEA"] = "tea";
+    ProductType["SMOOTHIE"] = "smoothie";
+    ProductType["SODA"] = "soda";
+    ProductType["JUICE"] = "juice";
+})(ProductType || (exports.ProductType = ProductType = {}));
 let Product = class Product {
 };
 exports.Product = Product;
@@ -38,6 +46,10 @@ __decorate([
     (0, typeorm_1.Column)({ default: true }),
     __metadata("design:type", Boolean)
 ], Product.prototype, "isAvailable", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: ProductType, default: ProductType.COFFEE }),
+    __metadata("design:type", String)
+], Product.prototype, "type", void 0);
 exports.Product = Product = __decorate([
     (0, typeorm_1.Entity)('products')
 ], Product);

@@ -41,11 +41,13 @@ export default function Login() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Login</h2>
-      <input placeholder="username" value={username} onChange={e => setUsername(e.target.value)} />
-      <input placeholder="password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button onClick={submit}>Login</button>
+    <div className="container">
+      <div className="card" style={{ maxWidth: 480, margin: '0 auto' }}>
+        <h2 className="page-title">Login</h2>
+        <div className="form-row"><input placeholder="username" value={username} onChange={e => setUsername(e.target.value)} /></div>
+        <div className="form-row"><input placeholder="password" type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
+        <div className="top-actions"><button className="btn btn-primary" onClick={submit}>Login</button></div>
+      </div>
     </div>
   );
 }

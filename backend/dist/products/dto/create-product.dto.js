@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateProductDto = void 0;
 const class_validator_1 = require("class-validator");
+const product_entity_1 = require("../entities/product.entity");
 class CreateProductDto {
 }
 exports.CreateProductDto = CreateProductDto;
@@ -37,4 +38,9 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateProductDto.prototype, "isAvailable", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(product_entity_1.ProductType),
+    __metadata("design:type", String)
+], CreateProductDto.prototype, "type", void 0);
 //# sourceMappingURL=create-product.dto.js.map

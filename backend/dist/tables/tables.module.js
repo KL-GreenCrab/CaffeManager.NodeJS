@@ -10,6 +10,7 @@ exports.TablesModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const table_entity_1 = require("./entities/table.entity");
+const table_history_entity_1 = require("./entities/table-history.entity");
 const tables_service_1 = require("./tables.service");
 const tables_controller_1 = require("./tables.controller");
 let TablesModule = class TablesModule {
@@ -17,7 +18,7 @@ let TablesModule = class TablesModule {
 exports.TablesModule = TablesModule;
 exports.TablesModule = TablesModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([table_entity_1.TableEntity])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([table_entity_1.TableEntity, table_history_entity_1.TableHistory])],
         providers: [tables_service_1.TablesService],
         controllers: [tables_controller_1.TablesController],
         exports: [tables_service_1.TablesService],

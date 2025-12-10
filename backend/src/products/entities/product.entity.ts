@@ -1,5 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
+export enum ProductType {
+  COFFEE = 'coffee',
+  TEA = 'tea',
+  SMOOTHIE = 'smoothie',
+  SODA = 'soda',
+  JUICE = 'juice',
+}
+
 @Entity('products')
 export class Product {
   @PrimaryGeneratedColumn()
@@ -19,4 +27,7 @@ export class Product {
 
   @Column({ default: true })
   isAvailable: boolean;
+
+  @Column({ type: 'enum', enum: ProductType, default: ProductType.COFFEE })
+  type: ProductType;
 }

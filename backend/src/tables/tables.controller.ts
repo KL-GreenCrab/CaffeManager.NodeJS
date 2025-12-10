@@ -13,6 +13,18 @@ export class TablesController {
   @Get()
   findAll() { return this.tablesService.findAll(); }
 
+  @Get(':id/total')
+  getTotal(@Param('id') id: string) { return this.tablesService.getTableTotal(+id); }
+
+  @Post(':id/close')
+  close(@Param('id') id: string, @Body() body: any) { return this.tablesService.closeTable(+id, body?.performedBy); }
+
+  @Get('history')
+  history() { return this.tablesService.listTableHistory(); }
+
+  @Get('history/:id')
+  historyOne(@Param('id') id: string) { return this.tablesService.getTableHistory(+id); }
+
   @Put(':id/status')
   updateStatus(@Param('id') id: string, @Body('status') status: TableStatus) {
     return this.tablesService.updateStatus(+id, status);

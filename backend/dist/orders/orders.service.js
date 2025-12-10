@@ -18,14 +18,18 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const order_entity_1 = require("./entities/order.entity");
 const order_item_entity_1 = require("./entities/order-item.entity");
+const order_history_entity_1 = require("./entities/order-history.entity");
 const product_entity_1 = require("../products/entities/product.entity");
 const table_entity_1 = require("../tables/entities/table.entity");
+const table_history_entity_1 = require("../tables/entities/table-history.entity");
 let OrdersService = class OrdersService {
-    constructor(orderRepo, itemRepo, productRepo, tableRepo) {
+    constructor(orderRepo, itemRepo, productRepo, tableRepo, orderHistoryRepo, tableHistoryRepo) {
         this.orderRepo = orderRepo;
         this.itemRepo = itemRepo;
         this.productRepo = productRepo;
         this.tableRepo = tableRepo;
+        this.orderHistoryRepo = orderHistoryRepo;
+        this.tableHistoryRepo = tableHistoryRepo;
     }
     async create(dto, user) {
         const table = await this.tableRepo.findOne({ where: { id: dto.tableId } });
@@ -69,6 +73,49 @@ let OrdersService = class OrdersService {
         }
         return this.orderRepo.save(o);
     }
+    async updateItemQuantity(orderId, itemId, qty) {
+        const order = await this.findOne(orderId);
+        if (!order)
+            throw new common_1.NotFoundException('Order not found');
+        const item = await this.itemRepo.findOne({ where: { id: itemId } });
+        if (!item)
+            throw new common_1.NotFoundException('Item not found');
+        if (qty <= 0) {
+            order.total = Number(order.total) - Number(item.price) * item.quantity;
+            await this.itemRepo.remove(item);
+        }
+        else {
+            order.total = Number(order.total) - Number(item.price) * item.quantity + Number(item.price) * qty;
+            item.quantity = qty;
+            await this.itemRepo.save(item);
+        }
+        return this.orderRepo.save(order);
+    }
+    async payOrder(orderId, user, body) {
+        var _a;
+        const order = await this.findOne(orderId);
+        if (!order)
+            throw new common_1.NotFoundException('Order not found');
+        order.status = order_entity_1.OrderStatus.COMPLETED;
+        await this.orderRepo.save(order);
+        if (order.table) {
+            const t = order.table;
+            t.status = table_entity_1.TableStatus.EMPTY;
+            await this.tableRepo.save(t);
+            const activeOrders = await this.orderRepo.find({ where: { table: { id: t.id }, status: order_entity_1.OrderStatus.COMPLETED } });
+            const th = this.tableHistoryRepo.create({ tableId: t.id, total: Number(order.total), ordersJson: JSON.stringify([order]) });
+            await this.tableHistoryRepo.save(th);
+        }
+        const oh = this.orderHistoryRepo.create({ orderId: order.id, tableId: ((_a = order.table) === null || _a === void 0 ? void 0 : _a.id) || null, userId: (user === null || user === void 0 ? void 0 : user.id) || null, total: Number(order.total), itemsJson: JSON.stringify(order.items || []) });
+        await this.orderHistoryRepo.save(oh);
+        return { success: true, order, historyId: oh.id };
+    }
+    listOrderHistory() {
+        return this.orderHistoryRepo.find({ order: { paidAt: 'DESC' } });
+    }
+    getOrderHistory(id) {
+        return this.orderHistoryRepo.findOne({ where: { id } });
+    }
     async addItem(orderId, productId, qty) {
         const order = await this.findOne(orderId);
         if (!order)
@@ -101,7 +148,11 @@ exports.OrdersService = OrdersService = __decorate([
     __param(1, (0, typeorm_1.InjectRepository)(order_item_entity_1.OrderItem)),
     __param(2, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __param(3, (0, typeorm_1.InjectRepository)(table_entity_1.TableEntity)),
+    __param(4, (0, typeorm_1.InjectRepository)(order_history_entity_1.OrderHistory)),
+    __param(5, (0, typeorm_1.InjectRepository)(table_history_entity_1.TableHistory)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])

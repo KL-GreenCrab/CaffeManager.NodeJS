@@ -31,9 +31,18 @@ let OrdersController = class OrdersController {
     updateStatus(id, status) {
         return this.ordersService.updateStatus(+id, status);
     }
+    pay(id, body, req) {
+        const user = req.user;
+        return this.ordersService.payOrder(+id, user, body);
+    }
     addItem(id, dto) {
         return this.ordersService.addItem(+id, dto.productId, dto.quantity);
     }
+    editItem(id, itemId, quantity) {
+        return this.ordersService.updateItemQuantity(+id, +itemId, quantity);
+    }
+    history() { return this.ordersService.listOrderHistory(); }
+    historyOne(id) { return this.ordersService.getOrderHistory(+id); }
     removeItem(id, itemId) {
         return this.ordersService.removeItem(+id, +itemId);
     }
@@ -70,6 +79,16 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateStatus", null);
 __decorate([
+    (0, common_1.Post)(':id/pay'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "pay", null);
+__decorate([
     (0, common_1.Post)(':id/add-item'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -77,6 +96,29 @@ __decorate([
     __metadata("design:paramtypes", [String, add_item_dto_1.AddItemDto]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "addItem", null);
+__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Patch)(':id/item/:itemId'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)('itemId')),
+    __param(2, (0, common_1.Body)('quantity')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Number]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "editItem", null);
+__decorate([
+    (0, common_1.Get)('history'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "history", null);
+__decorate([
+    (0, common_1.Get)('history/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "historyOne", null);
 __decorate([
     (0, common_1.Patch)(':id/remove-item/:itemId'),
     __param(0, (0, common_1.Param)('id')),

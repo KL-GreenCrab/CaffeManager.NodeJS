@@ -23,6 +23,10 @@ let TablesController = class TablesController {
     }
     create(body) { return this.tablesService.create(body); }
     findAll() { return this.tablesService.findAll(); }
+    getTotal(id) { return this.tablesService.getTableTotal(+id); }
+    close(id, body) { return this.tablesService.closeTable(+id, body === null || body === void 0 ? void 0 : body.performedBy); }
+    history() { return this.tablesService.listTableHistory(); }
+    historyOne(id) { return this.tablesService.getTableHistory(+id); }
     updateStatus(id, status) {
         return this.tablesService.updateStatus(+id, status);
     }
@@ -41,6 +45,34 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], TablesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id/total'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TablesController.prototype, "getTotal", null);
+__decorate([
+    (0, common_1.Post)(':id/close'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], TablesController.prototype, "close", null);
+__decorate([
+    (0, common_1.Get)('history'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], TablesController.prototype, "history", null);
+__decorate([
+    (0, common_1.Get)('history/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TablesController.prototype, "historyOne", null);
 __decorate([
     (0, common_1.Put)(':id/status'),
     __param(0, (0, common_1.Param)('id')),

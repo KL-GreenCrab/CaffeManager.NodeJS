@@ -1,4 +1,5 @@
-import { IsString, IsNumber, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsBoolean, IsEnum } from 'class-validator';
+import { ProductType } from '../entities/product.entity';
 
 export class CreateProductDto {
   @IsString()
@@ -18,4 +19,8 @@ export class CreateProductDto {
   @IsOptional()
   @IsBoolean()
   isAvailable?: boolean;
+
+  @IsOptional()
+  @IsEnum(ProductType)
+  type?: ProductType;
 }

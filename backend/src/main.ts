@@ -6,6 +6,22 @@ import { UsersService } from './users/users.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Enable CORS to allow frontend (port 5173) to call backend (port 3000)
+  app.enableCors({
+    origin: (origin, callback) => {
+      const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://localhost:5174'];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'), false);
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+  
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   const config = app.get(ConfigService);
 

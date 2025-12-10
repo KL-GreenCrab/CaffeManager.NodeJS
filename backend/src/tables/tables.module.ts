@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TableEntity } from './entities/table.entity';
+import { TableHistory } from './entities/table-history.entity';
 import { TablesService } from './tables.service';
 import { TablesController } from './tables.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TableEntity])],
+  imports: [TypeOrmModule.forFeature([TableEntity, TableHistory])],
   providers: [TablesService],
   controllers: [TablesController],
   exports: [TablesService],
