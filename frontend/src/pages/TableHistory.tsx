@@ -77,15 +77,15 @@ export default function TableHistory() {
         {list.map((h: any) => (
           <div key={h.id} style={historyItem}>
             <div style={title}>
-              Table #{h.tableId} • Total: ${h.total?.toFixed(2)}
+              Table #{h.tableId} • Total: ${Number(h.total || 0)?.toFixed(2)}
             </div>
 
-            <div style={meta}>Closed At: {h.closedAt}</div>
+            <div style={meta}>Closed At: {new Date(h.closedAt).toLocaleString()}</div>
 
             <div style={{ marginTop: 10 }}>
               <details>
                 <summary style={summaryStyle}>Orders Snapshot</summary>
-                <pre style={jsonBox}>{h.ordersJson}</pre>
+                <pre style={jsonBox}>{JSON.stringify(JSON.parse(h.ordersJson), null, 2)}</pre>
               </details>
             </div>
           </div>

@@ -32,9 +32,8 @@ function Header() {
         <nav className="nav-links">
           <Link to="/">Products</Link>
           <Link to="/orders">Orders</Link>
-          {getRole() === 'waiter' && <Link to="/tables">Tables</Link>}
+          {(getRole() === 'waiter' || getRole() === 'cashier' || isAdmin()) && <Link to="/tables">Tables</Link>}
           {isAdmin() && <Link to="/users">Users</Link>}
-          {isAdmin() && <Link to="/tables">Tables</Link>}
           <Link to="/dashboard">Dashboard</Link>
           {!logged && <Link to="/login">Login</Link>}
         </nav>

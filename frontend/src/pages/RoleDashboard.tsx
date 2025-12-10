@@ -149,30 +149,29 @@ export default function RoleDashboard() {
           </div>
         )}
 
-        {/* CASHIER MENU */}
-        {role === "cashier" && (
+        {role === 'waiter' && (
           <div>
-            <h3 style={sectionTitle}>Cashier Actions</h3>
-            <div style={grid}>
-              <Link
-                to="/orders"
-                style={menuCard}
-                onMouseEnter={(e) =>
-                  Object.assign(e.currentTarget.style, menuHover)
-                }
-                onMouseLeave={(e) =>
-                  Object.assign(e.currentTarget.style, {
-                    transform: "scale(1)",
-                  })
-                }
-              >
-                View / Close Orders
-              </Link>
+            <h3>Waiter Actions</h3>
+            <div className="grid">
+              <Link to="/tables" className="card">View Tables</Link>
+              <Link to="/orders/create" className="card">Create Order</Link>
+              <Link to="/orders" className="card">View Open Orders</Link>
             </div>
           </div>
         )}
 
-        {/* GUEST */}
+        {role === 'cashier' && (
+          <div>
+            <h3>Cashier Actions</h3>
+            <div className="grid">
+              <Link to="/tables" className="card">View Tables</Link>
+              <Link to="/orders" className="card">View / Close Orders</Link>
+              <Link to="/history/tables" className="card">Table History</Link>
+              <Link to="/history/orders" className="card">Order History</Link>
+            </div>
+          </div>
+        )}
+
         {!role && (
           <div>
             <h3 style={sectionTitle}>Guest</h3>

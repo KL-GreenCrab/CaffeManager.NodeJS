@@ -61,7 +61,7 @@ export default function Login() {
       >
         <div style={{ fontSize: 60, marginBottom: 10, color: "#6b4f3a" }}>☕</div>
 
-        <h2 style={{ color: "#4a3728", margin: 0 }}>Coffee Shop Admin</h2>
+        <h2 style={{ color: "#4a3728", margin: 0 }}>Coffee Shop</h2>
         <p style={{ color: "#7a6a54", marginTop: 4, marginBottom: 24 }}>
           Đăng nhập để tiếp tục
         </p>
