@@ -46,12 +46,20 @@ export class OrdersService {
     return this.orderRepo.save(order);
   }
 
+  findByTable(tableId: number) {
+    return this.orderRepo.find({
+      where: { table: { id: tableId } },
+      relations: ['user', 'items', 'items.product'],
+      order: { createdAt: 'ASC' },
+    });
+  }
+
   findAll() {
     return this.orderRepo.find({ order: { createdAt: 'DESC' } });
   }
 
   findOne(id: number) {
-    return this.orderRepo.findOne({ where: { id } });
+    return this.orderRepo.findOne({ where: { id }, relations: ['items', 'items.product', 'table', 'user'] });
   }
 
   async updateStatus(id: number, status: string) {
@@ -92,45 +100,37 @@ export class OrdersService {
     // mark as completed
     order.status = OrderStatus.COMPLETED;
     await this.orderRepo.save(order);
-
-    // set table as EMPTY
-    if (order.table) {
-      const t = order.table;
-      t.status = TableStatus.EMPTY;
-      await this.tableRepo.save(t);
-
-      // record table history: snapshot of orders for that table at payment time
-      const activeOrders = await this.orderRepo.find({ where: { table: { id: t.id }, status: OrderStatus.COMPLETED } });
-      const th = this.tableHistoryRepo.create({ tableId: t.id, total: Number(order.total), ordersJson: JSON.stringify([order]) });
-      await this.tableHistoryRepo.save(th);
-    }
-
-    // record order history
-    const oh = this.orderHistoryRepo.create({ orderId: order.id, tableId: order.table?.id || null, userId: user?.id || null, total: Number(order.total), itemsJson: JSON.stringify(order.items || []) });
-    await this.orderHistoryRepo.save(oh);
-
-    return { success: true, order, historyId: oh.id };
+    // create history
+    const itemsJson = JSON.stringify(order.items.map(it => ({ name: it.product.name, price: it.price, quantity: it.quantity })));
+    const h = this.orderHistoryRepo.create({
+      orderId: order.id,
+      tableId: order.table?.id,
+      userId: user.id,
+      total: order.total,
+      itemsJson,
+      paidAt: new Date(),
+    });
+    return this.orderHistoryRepo.save(h);
   }
 
-  // Order history listing
+  async addItem(orderId: number, productId: number, quantity: number) {
+    const order = await this.findOne(orderId);
+    if (!order) throw new NotFoundException('Order not found');
+    const product = await this.productRepo.findOne({ where: { id: productId } });
+    if (!product) throw new NotFoundException('Product not found');
+    const price = Number(product.price);
+    const item = this.itemRepo.create({ product, quantity, price });
+    order.items.push(item);
+    order.total = Number(order.total) + price * quantity;
+    return this.orderRepo.save(order);
+  }
+
   listOrderHistory() {
     return this.orderHistoryRepo.find({ order: { paidAt: 'DESC' } });
   }
 
   getOrderHistory(id: number) {
     return this.orderHistoryRepo.findOne({ where: { id } });
-  }
-
-  async addItem(orderId: number, productId: number, qty: number) {
-    const order = await this.findOne(orderId);
-    if (!order) throw new NotFoundException('Order not found');
-    const p = await this.productRepo.findOne({ where: { id: productId } });
-    if (!p) throw new NotFoundException('Product not found');
-    const oi = this.itemRepo.create({ order, product: p, quantity: qty, price: Number(p.price) });
-    order.items.push(oi);
-    order.total = Number(order.total) + Number(oi.price) * qty;
-    await this.itemRepo.save(oi);
-    return this.orderRepo.save(order);
   }
 
   async removeItem(orderId: number, itemId: number) {

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { AddItemDto } from './dto/add-item.dto';
@@ -18,40 +18,69 @@ export class OrdersController {
   @Get()
   findAll() { return this.ordersService.findAll(); }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) { return this.ordersService.findOne(+id); }
-
-  @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.ordersService.updateStatus(+id, status);
-  }
-
-  @Post(':id/pay')
-  @UseGuards(AuthGuard('jwt'))
-  pay(@Param('id') id: string, @Body() body: any, @Request() req: any) {
-    const user = req.user;
-    return this.ordersService.payOrder(+id, user, body);
-  }
-
-  @Post(':id/add-item')
-  addItem(@Param('id') id: string, @Body() dto: AddItemDto) {
-    return this.ordersService.addItem(+id, dto.productId, dto.quantity);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Patch(':id/item/:itemId')
-  editItem(@Param('id') id: string, @Param('itemId') itemId: string, @Body('quantity') quantity: number) {
-    return this.ordersService.updateItemQuantity(+id, +itemId, quantity);
+  @Get('by-table/:tableId')
+  findByTable(@Param('tableId') tableId: string) {
+    const id = +tableId;
+    if (isNaN(id)) throw new BadRequestException('Invalid table ID');
+    return this.ordersService.findByTable(id);
   }
 
   @Get('history')
   history() { return this.ordersService.listOrderHistory(); }
 
   @Get('history/:id')
-  historyOne(@Param('id') id: string) { return this.ordersService.getOrderHistory(+id); }
+  historyOne(@Param('id') id: string) {
+    const historyId = +id;
+    if (isNaN(historyId)) throw new BadRequestException('Invalid history ID');
+    return this.ordersService.getOrderHistory(historyId);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    const orderId = +id;
+    if (isNaN(orderId)) throw new BadRequestException('Invalid order ID');
+    return this.ordersService.findOne(orderId);
+  }
+
+  @Patch(':id/status')
+  updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    const orderId = +id;
+    if (isNaN(orderId)) throw new BadRequestException('Invalid order ID');
+    return this.ordersService.updateStatus(orderId, status);
+  }
+
+  @Post(':id/pay')
+  @UseGuards(AuthGuard('jwt'))
+  pay(@Param('id') id: string, @Body() body: any, @Request() req: any) {
+    const user = req.user;
+    const orderId = +id;
+    if (isNaN(orderId)) throw new BadRequestException('Invalid order ID');
+    return this.ordersService.payOrder(orderId, user, body);
+  }
+
+  @Post(':id/add-item')
+  addItem(@Param('id') id: string, @Body() dto: AddItemDto) {
+    const orderId = +id;
+    if (isNaN(orderId)) throw new BadRequestException('Invalid order ID');
+    return this.ordersService.addItem(orderId, dto.productId, dto.quantity);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch(':id/item/:itemId')
+  editItem(@Param('id') id: string, @Param('itemId') itemId: string, @Body('quantity') quantity: number) {
+    const orderId = +id;
+    const orderItemId = +itemId;
+    if (isNaN(orderId)) throw new BadRequestException('Invalid order ID');
+    if (isNaN(orderItemId)) throw new BadRequestException('Invalid item ID');
+    return this.ordersService.updateItemQuantity(orderId, orderItemId, quantity);
+  }
 
   @Patch(':id/remove-item/:itemId')
   removeItem(@Param('id') id: string, @Param('itemId') itemId: string) {
-    return this.ordersService.removeItem(+id, +itemId);
+    const orderId = +id;
+    const orderItemId = +itemId;
+    if (isNaN(orderId)) throw new BadRequestException('Invalid order ID');
+    if (isNaN(orderItemId)) throw new BadRequestException('Invalid item ID');
+    return this.ordersService.removeItem(orderId, orderItemId);
   }
 }

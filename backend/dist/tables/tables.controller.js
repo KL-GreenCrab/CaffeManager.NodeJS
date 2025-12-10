@@ -23,12 +23,30 @@ let TablesController = class TablesController {
     }
     create(body) { return this.tablesService.create(body); }
     findAll() { return this.tablesService.findAll(); }
-    getTotal(id) { return this.tablesService.getTableTotal(+id); }
-    close(id, body) { return this.tablesService.closeTable(+id, body === null || body === void 0 ? void 0 : body.performedBy); }
+    getTotal(id) {
+        const tableId = +id;
+        if (isNaN(tableId))
+            throw new common_1.BadRequestException('Invalid table ID');
+        return this.tablesService.getTableTotal(tableId);
+    }
+    close(id, body) {
+        const tableId = +id;
+        if (isNaN(tableId))
+            throw new common_1.BadRequestException('Invalid table ID');
+        return this.tablesService.closeTable(tableId, body === null || body === void 0 ? void 0 : body.performedBy);
+    }
     history() { return this.tablesService.listTableHistory(); }
-    historyOne(id) { return this.tablesService.getTableHistory(+id); }
+    historyOne(id) {
+        const historyId = +id;
+        if (isNaN(historyId))
+            throw new common_1.BadRequestException('Invalid history ID');
+        return this.tablesService.getTableHistory(historyId);
+    }
     updateStatus(id, status) {
-        return this.tablesService.updateStatus(+id, status);
+        const tableId = +id;
+        if (isNaN(tableId))
+            throw new common_1.BadRequestException('Invalid table ID');
+        return this.tablesService.updateStatus(tableId, status);
     }
 };
 exports.TablesController = TablesController;

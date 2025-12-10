@@ -37,18 +37,23 @@ let TablesService = class TablesService {
         if (!t)
             throw new common_1.NotFoundException('Table not found');
         const orderRepo = this.repo.manager.getRepository(order_entity_1.Order);
-        const ordersAll = await orderRepo.find({ where: { table: { id: tableId } }, relations: ['items', 'user'] });
-        const orders = ordersAll.filter((o) => o.status !== order_entity_2.OrderStatus.COMPLETED);
+        const ordersAll = await orderRepo.find({ where: { table: { id: tableId } }, relations: ['items', 'user', 'items.product'] });
+        const ordersToArchive = ordersAll.filter((o) => o.status !== order_entity_2.OrderStatus.COMPLETED);
         const orderHistoryRepo = this.repo.manager.getRepository(order_history_entity_1.OrderHistory);
         const snapshots = [];
         let total = 0;
-        for (const o of orders) {
+        for (const o of ordersToArchive) {
             total += Number(o.total || 0);
-            const oh = orderHistoryRepo.create({ orderId: o.id, tableId: tableId, userId: ((_a = o.user) === null || _a === void 0 ? void 0 : _a.id) || null, total: Number(o.total), itemsJson: JSON.stringify(o.items || []) });
+            const oh = orderHistoryRepo.create({
+                orderId: o.id,
+                tableId: tableId,
+                userId: ((_a = o.user) === null || _a === void 0 ? void 0 : _a.id) || null,
+                total: Number(o.total),
+                itemsJson: JSON.stringify(o.items || []),
+            });
             await orderHistoryRepo.save(oh);
             snapshots.push({ orderId: o.id, total: o.total, items: o.items });
-            o.status = order_entity_2.OrderStatus.COMPLETED;
-            await orderRepo.save(o);
+            await orderRepo.remove(o);
         }
         const th = this.tableHistoryRepo.create({ tableId, total, ordersJson: JSON.stringify(snapshots) });
         await this.tableHistoryRepo.save(th);

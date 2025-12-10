@@ -28,20 +28,27 @@ export class TablesService {
 
     // find all orders for this table that are not COMPLETED
     const orderRepo = this.repo.manager.getRepository(Order);
-    const ordersAll = await orderRepo.find({ where: { table: { id: tableId } } as any, relations: ['items', 'user'] });
-    const orders = ordersAll.filter((o:any) => o.status !== OrderStatus.COMPLETED);
+    const ordersAll = await orderRepo.find({ where: { table: { id: tableId } } as any, relations: ['items', 'user', 'items.product'] });
+    const ordersToArchive = ordersAll.filter((o: any) => o.status !== OrderStatus.COMPLETED);
 
-    // create order histories and mark orders completed
+    // Create history records and then delete the original orders
     const orderHistoryRepo = this.repo.manager.getRepository(OrderHistory);
     const snapshots: any[] = [];
     let total = 0;
-    for (const o of orders) {
+    for (const o of ordersToArchive) {
       total += Number(o.total || 0);
-      const oh = orderHistoryRepo.create({ orderId: o.id, tableId: tableId, userId: o.user?.id || null, total: Number(o.total), itemsJson: JSON.stringify(o.items || []) });
+      const oh = orderHistoryRepo.create({
+        orderId: o.id,
+        tableId: tableId,
+        userId: o.user?.id || null,
+        total: Number(o.total),
+        itemsJson: JSON.stringify(o.items || []),
+      });
       await orderHistoryRepo.save(oh);
       snapshots.push({ orderId: o.id, total: o.total, items: o.items });
-      o.status = OrderStatus.COMPLETED;
-      await orderRepo.save(o);
+      
+      // Now, remove the order
+      await orderRepo.remove(o);
     }
 
     // record table history

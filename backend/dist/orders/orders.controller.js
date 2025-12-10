@@ -27,24 +27,61 @@ let OrdersController = class OrdersController {
         return this.ordersService.create(dto, user);
     }
     findAll() { return this.ordersService.findAll(); }
-    findOne(id) { return this.ordersService.findOne(+id); }
+    findByTable(tableId) {
+        const id = +tableId;
+        if (isNaN(id))
+            throw new common_1.BadRequestException('Invalid table ID');
+        return this.ordersService.findByTable(id);
+    }
+    history() { return this.ordersService.listOrderHistory(); }
+    historyOne(id) {
+        const historyId = +id;
+        if (isNaN(historyId))
+            throw new common_1.BadRequestException('Invalid history ID');
+        return this.ordersService.getOrderHistory(historyId);
+    }
+    findOne(id) {
+        const orderId = +id;
+        if (isNaN(orderId))
+            throw new common_1.BadRequestException('Invalid order ID');
+        return this.ordersService.findOne(orderId);
+    }
     updateStatus(id, status) {
-        return this.ordersService.updateStatus(+id, status);
+        const orderId = +id;
+        if (isNaN(orderId))
+            throw new common_1.BadRequestException('Invalid order ID');
+        return this.ordersService.updateStatus(orderId, status);
     }
     pay(id, body, req) {
         const user = req.user;
-        return this.ordersService.payOrder(+id, user, body);
+        const orderId = +id;
+        if (isNaN(orderId))
+            throw new common_1.BadRequestException('Invalid order ID');
+        return this.ordersService.payOrder(orderId, user, body);
     }
     addItem(id, dto) {
-        return this.ordersService.addItem(+id, dto.productId, dto.quantity);
+        const orderId = +id;
+        if (isNaN(orderId))
+            throw new common_1.BadRequestException('Invalid order ID');
+        return this.ordersService.addItem(orderId, dto.productId, dto.quantity);
     }
     editItem(id, itemId, quantity) {
-        return this.ordersService.updateItemQuantity(+id, +itemId, quantity);
+        const orderId = +id;
+        const orderItemId = +itemId;
+        if (isNaN(orderId))
+            throw new common_1.BadRequestException('Invalid order ID');
+        if (isNaN(orderItemId))
+            throw new common_1.BadRequestException('Invalid item ID');
+        return this.ordersService.updateItemQuantity(orderId, orderItemId, quantity);
     }
-    history() { return this.ordersService.listOrderHistory(); }
-    historyOne(id) { return this.ordersService.getOrderHistory(+id); }
     removeItem(id, itemId) {
-        return this.ordersService.removeItem(+id, +itemId);
+        const orderId = +id;
+        const orderItemId = +itemId;
+        if (isNaN(orderId))
+            throw new common_1.BadRequestException('Invalid order ID');
+        if (isNaN(orderItemId))
+            throw new common_1.BadRequestException('Invalid item ID');
+        return this.ordersService.removeItem(orderId, orderItemId);
     }
 };
 exports.OrdersController = OrdersController;
@@ -63,6 +100,26 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('by-table/:tableId'),
+    __param(0, (0, common_1.Param)('tableId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "findByTable", null);
+__decorate([
+    (0, common_1.Get)('history'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "history", null);
+__decorate([
+    (0, common_1.Get)('history/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "historyOne", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
@@ -106,19 +163,6 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Number]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "editItem", null);
-__decorate([
-    (0, common_1.Get)('history'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], OrdersController.prototype, "history", null);
-__decorate([
-    (0, common_1.Get)('history/:id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], OrdersController.prototype, "historyOne", null);
 __decorate([
     (0, common_1.Patch)(':id/remove-item/:itemId'),
     __param(0, (0, common_1.Param)('id')),

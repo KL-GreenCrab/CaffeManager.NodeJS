@@ -53,11 +53,18 @@ let OrdersService = class OrdersService {
         await this.tableRepo.save(table);
         return this.orderRepo.save(order);
     }
+    findByTable(tableId) {
+        return this.orderRepo.find({
+            where: { table: { id: tableId } },
+            relations: ['user', 'items', 'items.product'],
+            order: { createdAt: 'ASC' },
+        });
+    }
     findAll() {
         return this.orderRepo.find({ order: { createdAt: 'DESC' } });
     }
     findOne(id) {
-        return this.orderRepo.findOne({ where: { id } });
+        return this.orderRepo.findOne({ where: { id }, relations: ['items', 'items.product', 'table', 'user'] });
     }
     async updateStatus(id, status) {
         const o = await this.findOne(id);
@@ -98,36 +105,35 @@ let OrdersService = class OrdersService {
             throw new common_1.NotFoundException('Order not found');
         order.status = order_entity_1.OrderStatus.COMPLETED;
         await this.orderRepo.save(order);
-        if (order.table) {
-            const t = order.table;
-            t.status = table_entity_1.TableStatus.EMPTY;
-            await this.tableRepo.save(t);
-            const activeOrders = await this.orderRepo.find({ where: { table: { id: t.id }, status: order_entity_1.OrderStatus.COMPLETED } });
-            const th = this.tableHistoryRepo.create({ tableId: t.id, total: Number(order.total), ordersJson: JSON.stringify([order]) });
-            await this.tableHistoryRepo.save(th);
-        }
-        const oh = this.orderHistoryRepo.create({ orderId: order.id, tableId: ((_a = order.table) === null || _a === void 0 ? void 0 : _a.id) || null, userId: (user === null || user === void 0 ? void 0 : user.id) || null, total: Number(order.total), itemsJson: JSON.stringify(order.items || []) });
-        await this.orderHistoryRepo.save(oh);
-        return { success: true, order, historyId: oh.id };
+        const itemsJson = JSON.stringify(order.items.map(it => ({ name: it.product.name, price: it.price, quantity: it.quantity })));
+        const h = this.orderHistoryRepo.create({
+            orderId: order.id,
+            tableId: (_a = order.table) === null || _a === void 0 ? void 0 : _a.id,
+            userId: user.id,
+            total: order.total,
+            itemsJson,
+            paidAt: new Date(),
+        });
+        return this.orderHistoryRepo.save(h);
+    }
+    async addItem(orderId, productId, quantity) {
+        const order = await this.findOne(orderId);
+        if (!order)
+            throw new common_1.NotFoundException('Order not found');
+        const product = await this.productRepo.findOne({ where: { id: productId } });
+        if (!product)
+            throw new common_1.NotFoundException('Product not found');
+        const price = Number(product.price);
+        const item = this.itemRepo.create({ product, quantity, price });
+        order.items.push(item);
+        order.total = Number(order.total) + price * quantity;
+        return this.orderRepo.save(order);
     }
     listOrderHistory() {
         return this.orderHistoryRepo.find({ order: { paidAt: 'DESC' } });
     }
     getOrderHistory(id) {
         return this.orderHistoryRepo.findOne({ where: { id } });
-    }
-    async addItem(orderId, productId, qty) {
-        const order = await this.findOne(orderId);
-        if (!order)
-            throw new common_1.NotFoundException('Order not found');
-        const p = await this.productRepo.findOne({ where: { id: productId } });
-        if (!p)
-            throw new common_1.NotFoundException('Product not found');
-        const oi = this.itemRepo.create({ order, product: p, quantity: qty, price: Number(p.price) });
-        order.items.push(oi);
-        order.total = Number(order.total) + Number(oi.price) * qty;
-        await this.itemRepo.save(oi);
-        return this.orderRepo.save(order);
     }
     async removeItem(orderId, itemId) {
         const order = await this.findOne(orderId);

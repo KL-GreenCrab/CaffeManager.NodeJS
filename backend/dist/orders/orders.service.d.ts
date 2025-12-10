@@ -15,17 +15,14 @@ export declare class OrdersService {
     private tableHistoryRepo;
     constructor(orderRepo: Repository<Order>, itemRepo: Repository<OrderItem>, productRepo: Repository<Product>, tableRepo: Repository<TableEntity>, orderHistoryRepo: Repository<OrderHistory>, tableHistoryRepo: Repository<TableHistory>);
     create(dto: CreateOrderDto, user: any): Promise<Order>;
+    findByTable(tableId: number): Promise<Order[]>;
     findAll(): Promise<Order[]>;
     findOne(id: number): Promise<Order>;
     updateStatus(id: number, status: string): Promise<Order>;
     updateItemQuantity(orderId: number, itemId: number, qty: number): Promise<Order>;
-    payOrder(orderId: number, user: any, body: any): Promise<{
-        success: boolean;
-        order: Order;
-        historyId: number;
-    }>;
+    payOrder(orderId: number, user: any, body: any): Promise<OrderHistory>;
+    addItem(orderId: number, productId: number, quantity: number): Promise<Order>;
     listOrderHistory(): Promise<OrderHistory[]>;
     getOrderHistory(id: number): Promise<OrderHistory>;
-    addItem(orderId: number, productId: number, qty: number): Promise<Order>;
     removeItem(orderId: number, itemId: number): Promise<Order>;
 }
