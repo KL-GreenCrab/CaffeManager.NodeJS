@@ -16,6 +16,7 @@ exports.OrdersController = void 0;
 const common_1 = require("@nestjs/common");
 const orders_service_1 = require("./orders.service");
 const create_order_dto_1 = require("./dto/create-order.dto");
+const update_order_dto_1 = require("./dto/update-order.dto");
 const add_item_dto_1 = require("./dto/add-item.dto");
 const passport_1 = require("@nestjs/passport");
 let OrdersController = class OrdersController {
@@ -31,14 +32,10 @@ let OrdersController = class OrdersController {
         const id = +tableId;
         if (isNaN(id))
             throw new common_1.BadRequestException('Invalid table ID');
-        return this.ordersService.findByTable(id);
+        return this.ordersService.findByTable(+tableId);
     }
-    history() { return this.ordersService.listOrderHistory(); }
-    historyOne(id) {
-        const historyId = +id;
-        if (isNaN(historyId))
-            throw new common_1.BadRequestException('Invalid history ID');
-        return this.ordersService.getOrderHistory(historyId);
+    update(id, updateOrderDto) {
+        return this.ordersService.update(+id, updateOrderDto);
     }
     findOne(id) {
         const orderId = +id;
@@ -108,18 +105,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findByTable", null);
 __decorate([
-    (0, common_1.Get)('history'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], OrdersController.prototype, "history", null);
-__decorate([
-    (0, common_1.Get)('history/:id'),
+    (0, common_1.Put)(':id'),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, update_order_dto_1.UpdateOrderDto]),
     __metadata("design:returntype", void 0)
-], OrdersController.prototype, "historyOne", null);
+], OrdersController.prototype, "update", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

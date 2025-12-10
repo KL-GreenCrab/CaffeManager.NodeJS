@@ -1,7 +1,7 @@
 import { IsInt, ArrayNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class ItemDto {
+export class ItemDto {
   @IsInt()
   productId: number;
 

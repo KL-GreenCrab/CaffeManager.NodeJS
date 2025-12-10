@@ -6,6 +6,7 @@ import { Product } from '../products/entities/product.entity';
 import { TableEntity } from '../tables/entities/table.entity';
 import { TableHistory } from '../tables/entities/table-history.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 export declare class OrdersService {
     private orderRepo;
     private itemRepo;
@@ -17,6 +18,7 @@ export declare class OrdersService {
     create(dto: CreateOrderDto, user: any): Promise<Order>;
     findByTable(tableId: number): Promise<Order[]>;
     findAll(): Promise<Order[]>;
+    update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order>;
     findOne(id: number): Promise<Order>;
     updateStatus(id: number, status: string): Promise<Order>;
     updateItemQuantity(orderId: number, itemId: number, qty: number): Promise<Order>;

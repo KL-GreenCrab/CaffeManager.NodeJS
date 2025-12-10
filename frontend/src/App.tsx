@@ -10,6 +10,7 @@ import ProductDetail from './pages/ProductDetail';
 import TableDetail from './pages/TableDetail';
 import OrderHistory from './pages/OrderHistory';
 import TableHistory from './pages/TableHistory';
+import OrderDetail from './pages/OrderDetail';
 import { isAdmin, getToken, getRole } from './api';
 
 function Header() {
@@ -64,6 +65,7 @@ function App() {
         <Route path="/history/tables" element={<TableHistory/>} />
         <Route path="/dashboard" element={<RoleDashboard/>} />
         <Route path="/" element={<Products/>} />
+        <Route path="/orders/:id" element={<OrderDetail/>} />
         </Routes>
       </div>
     </BrowserRouter>

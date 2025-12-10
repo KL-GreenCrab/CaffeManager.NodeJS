@@ -4,6 +4,7 @@ import { getRole, isAdmin, parseToken } from "../api";
 
 export default function RoleDashboard() {
   const role = getRole();
+  const token = parseToken();
 
   const page: React.CSSProperties = {
     padding: "30px 20px",
@@ -63,21 +64,29 @@ export default function RoleDashboard() {
         {/* LOGIN INFO */}
         <div style={{ marginTop: 18 }}>
           <h4 style={sectionTitle}>Login Info</h4>
-          <pre
+          <div
             style={{
-              maxHeight: 180,
-              overflow: "auto",
               padding: 12,
               background: "#faf4ea",
               borderRadius: 8,
               border: "1px solid #e2d5c3",
+              fontFamily: "monospace",
+              lineHeight: "1.6"
             }}
           >
-            {JSON.stringify(parseToken() || {}, null, 2)}
-          </pre>
+            {token ? (
+              <>
+                <div><strong>Username:</strong> {token.username}</div>
+                <div><strong>Full Name:</strong> {token.fullName}</div>
+                <div><strong>Role:</strong> {token.role}</div>
+              </>
+            ) : (
+              "No token found."
+            )}
+          </div>
         </div>
 
-        {/* ADMIN MENU */}
+        {/* ================= ADMIN MENU ================= */}
         {isAdmin() && (
           <div>
             <h3 style={sectionTitle}>Admin Actions</h3>
@@ -111,7 +120,7 @@ export default function RoleDashboard() {
           </div>
         )}
 
-        {/* WAITER MENU */}
+        {/* ================= WAITER MENU ================= */}
         {role === "waiter" && (
           <div>
             <h3 style={sectionTitle}>Waiter Actions</h3>
@@ -132,6 +141,21 @@ export default function RoleDashboard() {
               </Link>
 
               <Link
+                to="/orders/create"
+                style={menuCard}
+                onMouseEnter={(e) =>
+                  Object.assign(e.currentTarget.style, menuHover)
+                }
+                onMouseLeave={(e) =>
+                  Object.assign(e.currentTarget.style, {
+                    transform: "scale(1)",
+                  })
+                }
+              >
+                Create Order
+              </Link>
+
+              <Link
                 to="/orders"
                 style={menuCard}
                 onMouseEnter={(e) =>
@@ -143,35 +167,49 @@ export default function RoleDashboard() {
                   })
                 }
               >
-                Create Orders
+                View Open Orders
               </Link>
             </div>
           </div>
         )}
 
-        {role === 'waiter' && (
+        {/* ================= CASHIER MENU ================= */}
+        {role === "cashier" && (
           <div>
-            <h3>Waiter Actions</h3>
-            <div className="grid">
-              <Link to="/tables" className="card">View Tables</Link>
-              <Link to="/orders/create" className="card">Create Order</Link>
-              <Link to="/orders" className="card">View Open Orders</Link>
+            <h3 style={sectionTitle}>Cashier Actions</h3>
+            <div style={grid}>
+              <Link
+                to="/tables"
+                style={menuCard}
+              >
+                View Tables
+              </Link>
+
+              <Link
+                to="/orders"
+                style={menuCard}
+              >
+                View / Close Orders
+              </Link>
+
+              <Link
+                to="/history/tables"
+                style={menuCard}
+              >
+                Table History
+              </Link>
+
+              <Link
+                to="/history/orders"
+                style={menuCard}
+              >
+                Order History
+              </Link>
             </div>
           </div>
         )}
 
-        {role === 'cashier' && (
-          <div>
-            <h3>Cashier Actions</h3>
-            <div className="grid">
-              <Link to="/tables" className="card">View Tables</Link>
-              <Link to="/orders" className="card">View / Close Orders</Link>
-              <Link to="/history/tables" className="card">Table History</Link>
-              <Link to="/history/orders" className="card">Order History</Link>
-            </div>
-          </div>
-        )}
-
+        {/* ================= GUEST ================= */}
         {!role && (
           <div>
             <h3 style={sectionTitle}>Guest</h3>

@@ -1,6 +1,7 @@
-import { Controller, Post, Body, Get, Param, Patch, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import { Controller,Put, Post, Body, Get, Param, Patch, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 import { AddItemDto } from './dto/add-item.dto';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -22,17 +23,12 @@ export class OrdersController {
   findByTable(@Param('tableId') tableId: string) {
     const id = +tableId;
     if (isNaN(id)) throw new BadRequestException('Invalid table ID');
-    return this.ordersService.findByTable(id);
+    return this.ordersService.findByTable(+tableId);
   }
 
-  @Get('history')
-  history() { return this.ordersService.listOrderHistory(); }
-
-  @Get('history/:id')
-  historyOne(@Param('id') id: string) {
-    const historyId = +id;
-    if (isNaN(historyId)) throw new BadRequestException('Invalid history ID');
-    return this.ordersService.getOrderHistory(historyId);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.ordersService.update(+id, updateOrderDto);
   }
 
   @Get(':id')

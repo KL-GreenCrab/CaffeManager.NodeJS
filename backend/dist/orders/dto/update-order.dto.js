@@ -9,31 +9,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateOrderDto = exports.ItemDto = void 0;
+exports.UpdateOrderDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
-class ItemDto {
+const create_order_dto_1 = require("./create-order.dto");
+class UpdateOrderDto {
 }
-exports.ItemDto = ItemDto;
+exports.UpdateOrderDto = UpdateOrderDto;
 __decorate([
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], ItemDto.prototype, "productId", void 0);
-__decorate([
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], ItemDto.prototype, "quantity", void 0);
-class CreateOrderDto {
-}
-exports.CreateOrderDto = CreateOrderDto;
-__decorate([
-    (0, class_validator_1.IsInt)(),
-    __metadata("design:type", Number)
-], CreateOrderDto.prototype, "tableId", void 0);
-__decorate([
-    (0, class_validator_1.ArrayNotEmpty)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.ValidateNested)({ each: true }),
-    (0, class_transformer_1.Type)(() => ItemDto),
+    (0, class_transformer_1.Type)(() => create_order_dto_1.ItemDto),
     __metadata("design:type", Array)
-], CreateOrderDto.prototype, "items", void 0);
-//# sourceMappingURL=create-order.dto.js.map
+], UpdateOrderDto.prototype, "items", void 0);
+//# sourceMappingURL=update-order.dto.js.map

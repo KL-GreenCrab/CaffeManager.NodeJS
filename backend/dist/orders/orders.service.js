@@ -61,10 +61,44 @@ let OrdersService = class OrdersService {
         });
     }
     findAll() {
-        return this.orderRepo.find({ order: { createdAt: 'DESC' } });
+        return this.orderRepo.find({ relations: ['user', 'items', 'items.product'] });
+    }
+    async update(id, updateOrderDto) {
+        const order = await this.orderRepo.findOne({ where: { id }, relations: ['items'] });
+        if (!order) {
+            throw new common_1.NotFoundException('Order not found');
+        }
+        const productRepo = this.orderRepo.manager.getRepository(product_entity_1.Product);
+        const orderItemRepo = this.orderRepo.manager.getRepository(order_item_entity_1.OrderItem);
+        if (order.items && order.items.length > 0) {
+            await orderItemRepo.remove(order.items);
+        }
+        let total = 0;
+        const newItems = [];
+        for (const itemDto of updateOrderDto.items) {
+            if (itemDto.quantity <= 0) {
+                continue;
+            }
+            const product = await productRepo.findOne({ where: { id: itemDto.productId } });
+            if (!product) {
+                throw new common_1.NotFoundException(`Product with ID ${itemDto.productId} not found`);
+            }
+            const item = orderItemRepo.create({
+                product: product,
+                quantity: itemDto.quantity,
+                price: product.price,
+                order: order,
+            });
+            await orderItemRepo.save(item);
+            newItems.push(item);
+            total += item.price * item.quantity;
+        }
+        order.items = newItems;
+        order.total = total;
+        return this.orderRepo.save(order);
     }
     findOne(id) {
-        return this.orderRepo.findOne({ where: { id }, relations: ['items', 'items.product', 'table', 'user'] });
+        return this.orderRepo.findOne({ where: { id }, relations: ['user', 'items', 'items.product'] });
     }
     async updateStatus(id, status) {
         const o = await this.findOne(id);
