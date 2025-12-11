@@ -6,6 +6,7 @@ export declare class OrdersController {
     private ordersService;
     constructor(ordersService: OrdersService);
     create(dto: CreateOrderDto, req: any): Promise<import("./entities/order.entity").Order>;
+    findHistory(): Promise<import("./entities/order-history.entity").OrderHistory[]>;
     findAll(): Promise<import("./entities/order.entity").Order[]>;
     findByTable(tableId: string): Promise<import("./entities/order.entity").Order[]>;
     update(id: string, updateOrderDto: UpdateOrderDto): Promise<import("./entities/order.entity").Order>;

@@ -59,6 +59,12 @@ export class OrdersService {
     return this.orderRepo.find({ relations: ['user', 'items', 'items.product'] });
   }
 
+  findHistory() {
+    return this.orderHistoryRepo.find({
+      order: { paidAt: 'DESC' },
+    });
+  }
+
   async update(id: number, updateOrderDto: UpdateOrderDto) {
     const order = await this.orderRepo.findOne({ where: { id }, relations: ['items'] });
     if (!order) {

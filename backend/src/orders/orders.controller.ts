@@ -16,6 +16,11 @@ export class OrdersController {
     return this.ordersService.create(dto, user);
   }
 
+  @Get('history')
+  findHistory() {
+    return this.ordersService.findHistory();
+  }
+
   @Get()
   findAll() { return this.ordersService.findAll(); }
 

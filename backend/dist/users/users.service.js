@@ -28,37 +28,33 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
-const role_entity_1 = require("../roles/entities/role.entity");
 const bcrypt = require("bcrypt");
+const role_entity_1 = require("../roles/entities/role.entity");
 let UsersService = class UsersService {
-    constructor(userRepo, roleRepo) {
-        this.userRepo = userRepo;
+    constructor(repo, roleRepo) {
+        this.repo = repo;
         this.roleRepo = roleRepo;
     }
-    async create(username, password, fullName, roleName) {
-        if (!username || !password) {
-            throw new common_1.BadRequestException('username and password are required');
+    async create(username, pass, fullName, roleName) {
+        const password = await bcrypt.hash(pass, 10);
+        const role = await this.roleRepo.findOne({ where: { name: roleName } });
+        if (!role) {
+            throw new common_1.NotFoundException(`Role ${roleName} not found`);
         }
-        const existing = await this.findByUsername(username);
-        if (existing)
-            throw new common_1.BadRequestException('username already exists');
-        const hash = await bcrypt.hash(password, 10);
-        let role = null;
-        if (roleName) {
-            role = await this.roleRepo.findOne({ where: { name: roleName } });
-            if (!role) {
-                role = this.roleRepo.create({ name: roleName });
-                role = await this.roleRepo.save(role);
-            }
-        }
-        const user = this.userRepo.create({ username, password: hash, fullName, role });
-        return this.userRepo.save(user);
+        const user = this.repo.create({ username, password, fullName, role });
+        return this.repo.save(user);
+    }
+    findAll() {
+        return this.repo.find({ relations: ['role'] });
+    }
+    findOne(username) {
+        return this.repo.findOne({ where: { username }, relations: ['role'] });
     }
     findByUsername(username) {
-        return this.userRepo.findOne({ where: { username } });
+        return this.repo.findOne({ where: { username } });
     }
     findById(id) {
-        return this.userRepo.findOne({ where: { id } });
+        return this.repo.findOne({ where: { id } });
     }
     async validateUser(username, pass) {
         const user = await this.findByUsername(username);
@@ -71,21 +67,31 @@ let UsersService = class UsersService {
         }
         return null;
     }
-    async update(id, data) {
+    async update(id, attrs) {
         const user = await this.findById(id);
-        if (!user)
+        if (!user) {
             throw new common_1.NotFoundException('User not found');
-        if (data.fullName !== undefined)
-            user.fullName = data.fullName;
-        if (data.password !== undefined)
-            user.password = await bcrypt.hash(data.password, 10);
-        return this.userRepo.save(user);
+        }
+        if (attrs.password) {
+            attrs.password = await bcrypt.hash(attrs.password, 10);
+        }
+        if (attrs.roleId) {
+            const role = await this.roleRepo.findOne({ where: { id: attrs.roleId } });
+            if (!role) {
+                throw new common_1.NotFoundException(`Role with ID ${attrs.roleId} not found`);
+            }
+            user.role = role;
+            delete attrs.roleId;
+        }
+        Object.assign(user, attrs);
+        return this.repo.save(user);
     }
     async remove(id) {
         const user = await this.findById(id);
-        if (!user)
+        if (!user) {
             throw new common_1.NotFoundException('User not found');
-        return this.userRepo.remove(user);
+        }
+        return this.repo.remove(user);
     }
 };
 exports.UsersService = UsersService;

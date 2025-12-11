@@ -18,6 +18,7 @@ export declare class OrdersService {
     create(dto: CreateOrderDto, user: any): Promise<Order>;
     findByTable(tableId: number): Promise<Order[]>;
     findAll(): Promise<Order[]>;
+    findHistory(): Promise<OrderHistory[]>;
     update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order>;
     findOne(id: number): Promise<Order>;
     updateStatus(id: number, status: string): Promise<Order>;

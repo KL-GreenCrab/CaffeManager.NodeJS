@@ -27,6 +27,9 @@ let OrdersController = class OrdersController {
         const user = req.user;
         return this.ordersService.create(dto, user);
     }
+    findHistory() {
+        return this.ordersService.findHistory();
+    }
     findAll() { return this.ordersService.findAll(); }
     findByTable(tableId) {
         const id = +tableId;
@@ -91,6 +94,12 @@ __decorate([
     __metadata("design:paramtypes", [create_order_dto_1.CreateOrderDto, Object]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)('history'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "findHistory", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
