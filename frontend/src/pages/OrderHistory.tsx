@@ -71,7 +71,7 @@ export default function OrderHistory() {
             }}
           >
             <div style={{ fontWeight: "bold", color: "#6b4f3a", fontSize: 18 }}>
-              Order #{h.orderId} • Total: ${h.total}
+              Order #{h.id} • Total: ${h.total}
             </div>
 
             <div style={{ marginTop: 4, color: "#7a6a54", fontSize: 14 }}>

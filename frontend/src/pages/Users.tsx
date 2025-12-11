@@ -172,6 +172,9 @@ export default function Users() {
           <button style={btnPrimary} type="submit">
             Create User
           </button>
+          <button style={btnGhost} onClick={() => navigate('/users/list')}>
+            Back to User List
+          </button>
         </form>
       </div>
 
